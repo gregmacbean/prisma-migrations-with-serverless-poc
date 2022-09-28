@@ -8,13 +8,20 @@ const prisma = new PrismaClient({
 export const handler: Handler = async (event, context) => {
   console.log(event);
   console.log(context);
+
   const command: string = event.command ?? "create";
 
-  switch (command) {
-    case "create":
-      return await prisma.request.create({ data: { awsRequestId: context.awsRequestId } });
-    default:
-    case "get":
-      return await prisma.request.findMany();
+  try {
+    switch (command) {
+      case "create":
+        return await prisma.request.create({ data: { awsRequestId: context.awsRequestId } });
+      default:
+      case "get":
+        return await prisma.request.findMany();
+    }
+  }
+  catch (error) {
+    console.error(error);
+    throw error;
   }
 };

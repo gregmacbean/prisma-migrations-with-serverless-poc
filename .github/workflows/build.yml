@@ -1,7 +1,7 @@
 name: Build
 on: [push, workflow_dispatch]
 jobs:
-  Build-and-Test-CDK:
+  Build-and-Test-Serverless:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

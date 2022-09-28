@@ -1,0 +1,18 @@
+service: prisma-migrations-with-serverless-poc
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  handler:
+    handler: handler.handler
+
+  migrationRunner:
+    handler: migration-runner.handler
