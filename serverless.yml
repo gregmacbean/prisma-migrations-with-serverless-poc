@@ -1,18 +1,68 @@
-service: prisma-migrations-with-serverless-poc
+service: prisma-migration-poc
 
-frameworkVersion: "3"
+configValidationMode: error
+deprecationNotificationMode: error
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-webpack
+  - serverless-offline
 
 provider:
   name: aws
   runtime: nodejs14.x
+  stage: ${opt:stage, 'development'}
+  region: ap-southeast-2
+  memorySize: 256
+  vpc:
+    securityGroupIds:
+      - !Ref LambdaSecurityGroup
+    subnetIds:
+      - !Ref SubnetA
+      - !Ref SubnetB
+  environment:
+    DATABASE_URL:
+      Fn::Join:
+        - ""
+        - - "postgres://"
+          - ${self:custom.DB_USERNAME}
+          - ":"
+          - ${self:custom.DB_PASSWORD}
+          - "@"
+          - ${self:custom.DB_ENDPOINT}
+          - ":"
+          - ${self:custom.DB_PORT}
+          - "/"
+          - ${self:custom.DB_NAME}
+          - "?connection_limit=1"
+
+custom:
+  #note, the username/password should be managed by AWS secrets manager & rotated etc. This is just a poc not best practise.
+  DB_NAME: dbname
+  DB_USERNAME: dbusername
+  DB_PASSWORD: dbpassword
+  DB_PORT: !GetAtt RDSInstance.Endpoint.Port
+  DB_ENDPOINT: !GetAtt RDSInstance.Endpoint.Address
+  VPC_CIDR: 10
+  webpack:
+    includeModules: true
+    packager: "npm"
+    packagerOptions:
+      scripts:
+        - prisma generate
+        - find . -type f -name '*darwin*' -delete
+        - node ./prisma/download-engines.js
 
 functions:
   handler:
-    handler: handler.handler
+    handler: src/handler.handler
+
+  healthCheck:
+    handler: src/health-check.handler
 
   migrationRunner:
-    handler: migration-runner.handler
+    handler: src/migration-runner.handler
+    timeout: 60
+
+resources:
+  - ${file(resources/vpc-resources.yml)}
+  - ${file(resources/rds-resources.yml)}
