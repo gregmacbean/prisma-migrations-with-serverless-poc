@@ -18,6 +18,8 @@
     "copy-webpack-plugin": "^11.0.0",
     "dotenv-cli": "^6.0.0",
     "esbuild": "^0.14.38",
+    "fast-glob": "^3.2.12",
+    "fs-extra": "^10.1.0",
     "prisma": "^4.0.0",
     "serverless-dotenv-plugin": "^4.0.2",
     "serverless-offline": "^10.3.2",

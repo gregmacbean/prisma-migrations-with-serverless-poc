@@ -49,8 +49,7 @@ custom:
     packagerOptions:
       scripts:
         - prisma generate
-        - find . -type f -name '*darwin*' -delete
-        - node ./prisma/download-engines.js
+        - node ./prisma/prepare-engines.js
 
 functions:
   handler:
